@@ -56,6 +56,21 @@
 #include "pwrm.h"
 #include "zps_nwk_pub.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "AppHardwareApi.h"
+
+#define BOARD_LED_BIT               (17)
+#define BOARD_LED_PIN               (1UL << BOARD_LED_BIT)
+
+#define BOARD_BTN_BIT               (0)
+#define BOARD_BTN_PIN               (1UL << BOARD_BTN_BIT)
+
+ZTIMER_tsTimer timers[1];
+uint8 blinkTimerHandle;
+uint8 buttonScanTimerHandle;
+
 /****************************************************************************/
 /***        Macro Definitions                                             ***/
 /****************************************************************************/
@@ -90,6 +105,59 @@ extern void *_stack_low_water_mark;
 /****************************************************************************/
 /***        Exported Functions                                            ***/
 /****************************************************************************/
+
+typedef enum
+{
+	BUTTON_SHORT_PRESS,
+	BUTTON_LONG_PRESS
+} ButtonPressType;
+
+ButtonPressType queue[3];
+tszQueue queueHandle;
+
+PUBLIC void buttonScanFunc(void *pvParam)
+{
+	static int duration = 0;
+
+	uint32 input = u32AHI_DioReadInput();
+	bool btnState = (input & BOARD_BTN_PIN) == 0;
+
+	if(btnState)
+	{
+		duration++;
+	}
+	else
+	{
+		// detect long press
+		if(duration > 200)
+		{
+			DBG_vPrintf(TRUE, "Button released. Long press detected\n");
+            DBG_vPrintf(TRACE_APP, "Leave -> Reset Data Structures\n");
+            //APP_vFactoryResetRecords();
+            //vAHI_SwReset();
+            DBG_vPrintf(TRUE, "Erase PDM.......\n");
+			PDM_vDeleteAllDataRecords();
+			DBG_vPrintf(TRUE, "Reset...........\n");
+			APP_WriteMessageToSerial("FACTORY RESET\n");
+			//ZTIMER_eStart(u8TimerRestart, ZTIMER_TIME_MSEC(100));
+			vAHI_SwReset();
+			ButtonPressType value = BUTTON_LONG_PRESS;
+			ZQ_bQueueSend(&queueHandle, (uint8*)&value);
+		}
+
+		// detect short press
+		else if(duration > 5)
+		{
+			DBG_vPrintf(TRUE, "Button released. Short press detected\n");
+			ButtonPressType value = BUTTON_SHORT_PRESS;
+			ZQ_bQueueSend(&queueHandle, &value);
+		}
+
+		duration = 0;
+	}
+
+	ZTIMER_eStart(buttonScanTimerHandle, ZTIMER_TIME_MSEC(10));
+}
 
 /****************************************************************************
  *
@@ -202,6 +270,20 @@ PRIVATE void APP_vInitialise(void)
 
     ZPS_vExtendedStatusSetCallback(vfExtendedStatusCallBack);
 
+  	// Initialize hardware
+  	vAHI_DioSetDirection(BOARD_BTN_PIN, BOARD_LED_PIN);
+  	vAHI_DioSetPullup(BOARD_BTN_PIN, 0);
+  	vAHI_DioInterruptEdge(0, BOARD_BTN_PIN);
+  	vAHI_DioInterruptEnable(BOARD_BTN_PIN, 0);
+
+  	// Init and start timers
+  	ZTIMER_eInit(timers, sizeof(timers) / sizeof(ZTIMER_tsTimer));
+
+  	ZTIMER_eOpen(&buttonScanTimerHandle, buttonScanFunc, NULL, ZTIMER_FLAG_PREVENT_SLEEP);
+  	//ZTIMER_eStart(buttonScanTimerHandle, ZTIMER_TIME_MSEC(10));
+
+  	ZQ_vQueueCreate(&queueHandle, 3, sizeof(ButtonPressType), (uint8*)queue);
+  
     /* Initialise application */
     APP_vInitialiseRouter();
 }
