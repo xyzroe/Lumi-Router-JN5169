@@ -1,35 +1,80 @@
 # Lumi Router
 
-This firmware is a replacement for the original firmware for the __Zigbee__ chip JN5169 on __Xiaomi DGNWG05LM__ and __Aqara ZHWG11LM__ gateways which allows to use the gateway as a router (repeater-like) in any Zigbee network instead of the stock coordinator firmware for the propriate Xiaomi MiHome Network.
+This is fork of [Lumi Router JN5169 firmware](https://github.com/igo-r/Lumi-Router-JN5169) for use with the LM15-SP-WM module used in the Xiaomi Smart Plug (ZNCZ02LM).  
+Also it can be used with any other JN5169 based module.
+
+The only difference is the ability to reset the device using a button on DIO 0.  
+In the original firmware, all control takes place only through the serial port.
 
 ---
 
-This instruction assumes that an alternative __OpenWRT__ firmware is already installed on the gateway. If you have not done this, use the following instruction [https://openlumi.github.io](https://openlumi.github.io)
+## How to flash
 
-## Firmware
+1. Download [JN-SW-4107](https://www.nxp.com/downloads/en/software-support/JN-SW-4107.zip) and install
+2. Connect using JP1 to your USB-TTL according to table below:
 
-1. Connect to device via SSH.
-2. Issue the following commands in the command line.
+LM15-SP-WM (JP1) | JN5169 | Function | USB-TTL
+--- | --- | --- | ---
+1 | DIO 28 | TXD0 | RX
+2 | DIO 29 | RXD0 | TX
+3 |DIO 22 | SPIMISO | GND  
+4 |DIO 9/39 | VDD | 3.3V  
+5 |DIO 3 | RESETN | ---
+6 |DIO 21/39 | VSS | GND  
 
-```shell
-wget https://github.com/igo-r/Lumi-Router-JN5169/releases/latest/download/LumiRouter_20210320.bin -O /tmp/LumiRouter.bin 
-jnflash /tmp/LumiRouter.bin
-```
+3. Download firmware binary to `C:\NXP\ProductionFlashProgrammer` and open console at this folder.
+4. Run `JN51xxProgrammer.exe -s COM1 -f LumiRouter_20210707.bin -v -V`
 
-## Pairing
+---
 
-Issue the following command in the command line.
+## Reset and join
+The device enters join mode in two cases:
+  1. When PDM memory is erased
+  2. Right after leaving existing network
 
-```shell
-jntool erase_pdm
-```
+Long (> 2000ms) clicking on BTN (DIO0 to GND) erases PDM memory.
+The device will restart and then automatically join.
 
-After this the device will automatically join.
+![](/images/z2m.png)
 
 ## Restart
+Close JP1_5 (DIO 3) on GND to restart device.
 
-Issue the following command in the command line.
+---
 
-```shell
-jntool soft_reset
-```
+### Small prehistory
+Some time ago I found such modules based on JNN5169 on TaoBao and ordered a couple.  
+
+![](/images/taobao.jpg)
+
+Initially, I planned to use them as development boards to learn and play Zigbee SDK by NXP. I soldered just such a comb for easy installation into a breadboard.
+
+![](/images/module.jpeg)
+
+But since they are not very convenient as a development board, it was decided to make routers out of them to expand the Zigbee network.
+
+---
+
+### Making
+
+![](/images/start.jpeg)
+
+![](/images/back_side.jpeg)
+
+![](/images/finish.jpeg)
+
+![](/images/installed.jpeg)
+
+---
+
+## Thanks and links
+[Original Lumi Router JN5169 firmware](https://github.com/igo-r/Lumi-Router-JN5169) by [Igor Listopad](https://github.com/igo-r)
+
+Lots of info about LM15-SP-WM thanks to [@AFaron0v](https://t.me/AFaron0v)  
+
+[Xiaomi Zigbee (1): Getting to know the hardware](https://alephsecurity.com/2019/07/01/xiaomi-zigbee-1/)
+by Lev Aronsky [@levaronsky](https://twitter.com/levaronsky)
+
+[Hello NXP JN5169 World](https://habr.com/ru/post/547374/) by Oleksandr Masliuchenko [@grafalex82](https://t.me/grafalex82)
+
+[Comment 22819072](https://habr.com/ru/post/547374/#comment_22819072) thanks to [@mrG1K](https://t.me/mrG1K)
