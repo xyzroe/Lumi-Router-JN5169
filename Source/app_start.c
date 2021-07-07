@@ -132,14 +132,10 @@ PUBLIC void buttonScanFunc(void *pvParam)
 		if(duration > 200)
 		{
 			DBG_vPrintf(TRUE, "Button released. Long press detected\n");
-            DBG_vPrintf(TRACE_APP, "Leave -> Reset Data Structures\n");
-            //APP_vFactoryResetRecords();
-            //vAHI_SwReset();
-            DBG_vPrintf(TRUE, "Erase PDM.......\n");
+            		DBG_vPrintf(TRUE, "Erase PDM.......\n");
 			PDM_vDeleteAllDataRecords();
 			DBG_vPrintf(TRUE, "Reset...........\n");
-			APP_WriteMessageToSerial("FACTORY RESET\n");
-			//ZTIMER_eStart(u8TimerRestart, ZTIMER_TIME_MSEC(100));
+			APP_WriteMessageToSerial("FACTORY RESET");
 			vAHI_SwReset();
 			ButtonPressType value = BUTTON_LONG_PRESS;
 			ZQ_bQueueSend(&queueHandle, (uint8*)&value);
