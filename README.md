@@ -35,7 +35,7 @@ The device enters join mode in two cases:
 Long (> 2000ms) clicking on BTN (DIO0 to GND) erases PDM memory.
 The device will restart and then automatically join.
 
-![](/images/z2m.png)
+![](https://raw.githubusercontent.com/xyzroe/Lumi-Router-JN5169/master/images/z2m.png)
 
 ## Restart
 Close JP1_5 (DIO 3) on GND to restart device.
@@ -45,11 +45,11 @@ Close JP1_5 (DIO 3) on GND to restart device.
 ### Small prehistory
 Some time ago I found such modules based on JNN5169 on TaoBao and ordered a couple.  
 
-![](/images/taobao.jpg)
+![](https://raw.githubusercontent.com/xyzroe/Lumi-Router-JN5169/master/images/taobao.jpg)
 
 Initially, I planned to use them as development boards to learn and play Zigbee SDK by NXP. I soldered just such a comb for easy installation into a breadboard.
 
-![](/images/module.jpeg)
+![](https://raw.githubusercontent.com/xyzroe/Lumi-Router-JN5169/master/images/module.jpeg)
 
 But since they are not very convenient as a development board, it was decided to make routers out of them to expand the Zigbee network.
 
@@ -57,13 +57,13 @@ But since they are not very convenient as a development board, it was decided to
 
 ### Making
 
-![](/images/start.jpeg)
+![](https://raw.githubusercontent.com/xyzroe/Lumi-Router-JN5169/master/images/start.jpeg)
 
-![](/images/back_side.jpeg)
+![](https://raw.githubusercontent.com/xyzroe/Lumi-Router-JN5169/master/images/back_side.jpeg)
 
-![](/images/finish.jpeg)
+![](https://raw.githubusercontent.com/xyzroe/Lumi-Router-JN5169/master/images/finish.jpeg)
 
-![](/images/installed.jpeg)
+![](https://raw.githubusercontent.com/xyzroe/Lumi-Router-JN5169/master/images/installed.jpeg)
 
 ---
 
